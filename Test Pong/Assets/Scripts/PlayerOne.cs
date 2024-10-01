@@ -28,7 +28,7 @@ public class PlayerOne : MonoBehaviour
 
        
         Vector3 clampedPosition = transform.position;
-        clampedPosition.x = Mathf.Clamp(clampedPosition.x, -3.8f, 3.8f); 
+        clampedPosition.x = Mathf.Clamp(clampedPosition.x, -4.6f, 4.6f); 
         transform.position = clampedPosition;
     }
 }
