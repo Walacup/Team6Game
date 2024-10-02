@@ -33,15 +33,14 @@ public class BallM : MonoBehaviour
         rb.velocity = new Vector3(Random.Range(-0.5f, 0.5f), 0, randomDirection) * (initialSpeed + speedIncrease * hitCounter);
     }
 
-    private void ResetBall()
-    {
-        // Reset ball position and velocity after a goal
-        rb.velocity = Vector3.zero;
-        transform.position = Vector3.zero;  // Move the ball back to the center
-        hitCounter = 0;  // Reset hit counter
-        StartBall();  // Restart ball movement
-    }
-
+   private void ResetBall()
+ {
+    // Reset ball position and velocity after a goal
+    rb.velocity = Vector3.zero;
+    transform.position = new Vector3(0.16f, 0.982f, 0f);  // Move the ball to the specified coordinates
+    hitCounter = 0;  // Reset hit counter
+    StartBall();  // Restart ball movement
+ }
     private void PlayerBounce(Transform paddle)
     {
         hitCounter++;
