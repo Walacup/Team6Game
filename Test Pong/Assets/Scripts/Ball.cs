@@ -22,14 +22,15 @@ public class BallM : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Clamp the ball's velocity to prevent it from going too fast
+        // Ensure the ball keeps moving with clamped velocity
         rb.velocity = Vector3.ClampMagnitude(rb.velocity, initialSpeed + (speedIncrease * hitCounter));
     }
 
     private void StartBall()
     {
-        // Start the ball moving along the X-axis
-        rb.velocity = new Vector3(-1, 0, 0) * (initialSpeed + speedIncrease * hitCounter);
+        // Start the ball moving along the Z-axis, with a random direction on the X-axis
+        float randomDirection = Random.value > 0.5f ? 1f : -1f;
+        rb.velocity = new Vector3(Random.Range(-0.5f, 0.5f), 0, randomDirection) * (initialSpeed + speedIncrease * hitCounter);
     }
 
     private void ResetBall()
@@ -48,16 +49,16 @@ public class BallM : MonoBehaviour
         Vector3 ballPos = transform.position;
         Vector3 paddlePos = paddle.position;
 
-        float xDirection = transform.position.x > 0 ? -1 : 1;
-        float yDirection = (ballPos.y - paddlePos.y) / paddle.GetComponent<Collider>().bounds.size.y;
+        float zDirection = transform.position.z > 0 ? -1 : 1;  // Move the ball along the Z-axis
+        float xDirection = (ballPos.x - paddlePos.x) / paddle.GetComponent<Collider>().bounds.size.x;  // Calculate X direction based on where the ball hits the paddle
 
-        if (yDirection == 0)
+        if (xDirection == 0)
         {
-            yDirection = 0.25f;
+            xDirection = 0.25f;  // Ensure the ball doesn't move perfectly straight
         }
 
         // Apply the new velocity with the updated direction
-        rb.velocity = new Vector3(xDirection, yDirection, 0) * (initialSpeed + (speedIncrease * hitCounter));
+        rb.velocity = new Vector3(xDirection, 0, zDirection) * (initialSpeed + (speedIncrease * hitCounter));
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -65,25 +66,26 @@ public class BallM : MonoBehaviour
         // Handle collision with PlayerOne and PlayerTwo paddles
         if (collision.gameObject.CompareTag("PlayerOne") || collision.gameObject.CompareTag("PlayerTwo"))
         {
-            PlayerBounce(collision.transform);
+            PlayerBounce(collision.transform);  // Bounce off the player's paddle
         }
         else if (collision.gameObject.CompareTag("Wall"))
         {
-            // Reverse the Y direction when hitting a wall
-            rb.velocity = new Vector3(rb.velocity.x, -rb.velocity.y, rb.velocity.z);
+            // Reverse the X direction when hitting a wall, while keeping the Z-axis velocity the same
+            rb.velocity = new Vector3(-rb.velocity.x, 0, rb.velocity.z);
         }
     }
 
     private void OnTriggerEnter(Collider collision)
     {
+        // Handle goals (ball passing behind a paddle)
         if (collision.gameObject.CompareTag("Goal"))
         {
-            if (transform.position.x > 0)
+            if (transform.position.z > 0)
             {
                 ResetBall();
                 playerOneScore.text = (int.Parse(playerOneScore.text) + 1).ToString();
             }
-            else if (transform.position.x < 0)
+            else if (transform.position.z < 0)
             {
                 ResetBall();
                 playerTwoScore.text = (int.Parse(playerTwoScore.text) + 1).ToString();
