@@ -53,3 +53,32 @@ public class BlackHole : MonoBehaviour
         }
     }
 }
+=======
+using UnityEngine;
+
+public class Blackhole : MonoBehaviour
+{
+    public GameObject ball;               // Reference to the ball object
+    public float bounceForce = 20f;       // Force to bounce the ball away with high speed
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject == ball)
+        {
+            Rigidbody ballRigidbody = ball.GetComponent<Rigidbody>();
+
+            if (ballRigidbody != null)
+            {
+                // Get the direction from the ball to the blackhole
+                Vector3 directionFromBall = transform.position - ball.transform.position;
+
+                // Normalize the direction vector and negate it to point away from the blackhole
+                directionFromBall.Normalize();
+
+                // Apply a force in the opposite direction of the collision
+                ballRigidbody.AddForce(-directionFromBall * bounceForce, ForceMode.Impulse);
+            }
+        }
+    }
+}
+>>>>>>> Stashed changes
