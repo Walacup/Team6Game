@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -92,3 +93,100 @@ public class BallM : MonoBehaviour
         }
     }
 }
+=======
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;  // Include the TextMesh Pro namespace
+
+public class BallM : MonoBehaviour
+{
+    [SerializeField] private float initialSpeed = 10f;  // Initial speed of the ball
+    [SerializeField] private float speedIncrease = 0.25f;  // Speed increase per paddle hit
+    [SerializeField] private TMP_Text playerOneScore;  // Text component for player one's score
+    [SerializeField] private TMP_Text playerTwoScore;  // Text component for player two's score
+
+    private int hitCounter;  // Count of hits to calculate speed
+    private Rigidbody rb;  // Rigidbody component for physics operations
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();  // Get the Rigidbody component
+        rb.useGravity = false;  // Disable gravity for the ball
+        StartBall();  // Start the ball movement
+    }
+
+    void FixedUpdate()
+    {
+        // Ensure the ball keeps moving with clamped velocity
+        rb.velocity = Vector3.ClampMagnitude(rb.velocity, initialSpeed + (speedIncrease * hitCounter));
+    }
+
+    private void StartBall()
+    {
+        // Start the ball moving along the Z-axis, with a random direction on the X-axis
+        float randomDirection = Random.value > 0.5f ? 1f : -1f;
+        rb.velocity = new Vector3(Random.Range(-0.5f, 0.5f), 0, randomDirection) * (initialSpeed + speedIncrease * hitCounter);
+    }
+
+    private void ResetBall()
+    {
+        // Reset ball position and velocity after a goal
+        rb.velocity = Vector3.zero;
+        transform.position = new Vector3(0.16f, 0.982f, 0f);  // Move the ball to the specified coordinates
+        hitCounter = 0;  // Reset hit counter
+        StartBall();  // Restart ball movement
+    }
+
+    private void PlayerBounce(Transform paddle)
+    {
+        hitCounter++;  // Increment hit counter
+
+        Vector3 ballPos = transform.position;
+        Vector3 paddlePos = paddle.position;
+
+        float zDirection = transform.position.z > 0 ? -1 : 1;  // Determine Z-direction based on ball position
+        float xDirection = (ballPos.x - paddlePos.x) / paddle.GetComponent<Collider>().bounds.size.x;  // Calculate X direction based on paddle hit location
+
+        if (xDirection == 0)
+        {
+            xDirection = 0.25f;  // Avoid the ball moving straight
+        }
+
+        // Apply the new velocity with the updated direction
+        rb.velocity = new Vector3(xDirection, 0, zDirection) * (initialSpeed + (speedIncrease * hitCounter));
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        // Handle collision with PlayerOne and PlayerTwo paddles
+        if (collision.gameObject.CompareTag("PlayerOne") || collision.gameObject.CompareTag("PlayerTwo"))
+        {
+            PlayerBounce(collision.transform);  // Bounce off the player's paddle
+        }
+        else if (collision.gameObject.CompareTag("Wall"))
+        {
+            // Reverse the X direction when hitting a wall, maintaining the same Z-axis velocity
+            rb.velocity = new Vector3(-rb.velocity.x, 0, rb.velocity.z);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // Handle goals (ball passing behind a paddle)
+        if (other.CompareTag("Goal"))
+        {
+            if (transform.position.z > 0)
+            {
+                ResetBall();
+                playerOneScore.text = (int.Parse(playerOneScore.text) + 1).ToString();  // Update player one's score
+            }
+            else if (transform.position.z < 0)
+            {
+                ResetBall();
+                playerTwoScore.text = (int.Parse(playerTwoScore.text) + 1).ToString();  // Update player two's score
+            }
+        }
+    }
+}
+>>>>>>> Stashed changes
